@@ -17,8 +17,7 @@ class BidsController < ApplicationController
   protected
   def check_input
     params[:lead_id] = params[:lead_id].to_i
-    params[:bid] = params[:bid].to_s.gsub(/^\$/, '').to_i
-    puts "BID: #{params[:bid]}"
+    params[:bid] = params[:bid].to_s.gsub(/^\n\$/, '').gsub(/\n/, '').to_i
     params[:bid] = 0 if params[:bid] < 0
   end
 

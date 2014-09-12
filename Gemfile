@@ -26,6 +26,7 @@ group :development do
   gem 'capistrano-bundler'
   gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
+  gem 'capistrano-sidekiq'
   gem 'capistrano-rbenv', "~> 2.0" 
   gem 'foreman'
   gem 'html2haml'
