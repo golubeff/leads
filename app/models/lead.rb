@@ -23,17 +23,17 @@ class Lead < ActiveRecord::Base
   end
 
   def user_status(user)
-    if sold? && !user_id
+    if sold? && !self.user_id
       return "Loading..."
     end
 
-    if winner && winner.id == user.id
+    if winner && user && winner.id == user.id
       if sold?
         return "You bought this lead."
       else
         return "Your bid is highest."
       end
-    elsif bids.done.map(&:user_id).include?(user.id)
+    elsif user && bids.done.map(&:user_id).include?(user.id)
       if sold?
         return "Lead sold."
       else
@@ -59,6 +59,7 @@ class Lead < ActiveRecord::Base
   end
 
   def user_bid(user)
+    return nil unless user
     bids.done.order("bid desc").where(user_id: user.id).first
   end
 
