@@ -5,7 +5,7 @@ class BidsController < ApplicationController
 
   def show
     @bid = Bid.find(params[:id])
-    LeadDistributor.perform_async(@bid.lead_id) if @bid.lead.sold? && !@bid.lead.user_id
+    redirect_to @bid.lead
   end
 
   def create

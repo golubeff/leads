@@ -1,4 +1,10 @@
 class LeadsController < ApplicationController
+  def show
+    @lead = Lead.find(params[:id])
+    @bid = @lead.best_bid(current_user) if user_signed_in?
+    LeadDistributor.perform_async(@lead.id) if @lead.sold? && !@lead.user_id
+  end
+
   def index
     @leads = Lead.all
     if user_signed_in?

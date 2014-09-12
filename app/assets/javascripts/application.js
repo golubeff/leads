@@ -28,6 +28,9 @@ $(function(){
             var status_field = $('#status-' + lead_id);
             var buynow_bid = $("#bid-buynow-" + lead_id).html();
 
+            if (window['leadtimers-' + lead_id]) 
+                clearInterval(window['leadtimers-' + lead_id]);
+
             status_field.html('Buying out...');
             status_field.removeClass('text-danger');
             status_field.removeClass('text-success');    
@@ -37,7 +40,7 @@ $(function(){
                 url: "/bids",
                 type: "POST",
                 cache: false,
-                async: false,
+                async: true,
                 data: { lead_id: lead_id, bid: buynow_bid, buynow: true },
                 error: function(xhr, status, error) {
                 
@@ -61,12 +64,15 @@ $(function(){
             status_field.removeClass('text-danger');
             status_field.removeClass('text-success');
 
+            if (window['leadtimers-' + lead_id]) 
+                clearInterval(window['leadtimers-' + lead_id]);
+
             btn.addClass('disabled');
             $.ajax({
                 url: "/bids",
                 type: "POST",
                 cache: false,
-                async: false,
+                async: true,
                 data: { lead_id: lead_id, bid: bid_field.val() },
                 error: function(xhr, status, error) {
                 

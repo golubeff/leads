@@ -54,23 +54,22 @@
           = '—'
       %td{"data-title" => "Notes", :style => "display: none" }= lead.notes
       - unless params[:my]
-        %td{"data-title" => "Status"}
+        %td{"data-title" => "Status", "class" => "lead-status"}
           %span{"id" => "user-status-#{lead.id}"}
-            = lead.user_status(current_user) 
-            - if lead.user_bid(current_user) && !lead.sold?
+            =raw lead.user_status(current_user) 
+            - if !lead.sold?
               :javascript
                 $.ajax({
-                  url: "/bids/#{lead.user_bid(current_user).id}",
+                  url: "/leads/#{lead.id}",
                   type: "GET",
                   cache: false,
                   async: false
 
                 });
-          = link_to "Refresh", '/'
       %td{"data-title" => "Last Bid"}
         %span{"id" => "table-bid-#{lead.id}"}
           - if lead.bid 
-            - if !lead.sold?
+            - if !lead.sold? && lead.bid.to_s.present?
               = "$#{lead.bid}"
           - else
             — 
@@ -87,7 +86,8 @@
               :javascript
                 $('#counter-#{lead.id}').addClass('text-success');
                 $('#counter-#{lead.id}').removeClass('text-danger');
-              = "$#{lead.bid}"                            
+              - if lead.bid
+                = "$#{lead.bid}"                            
 
 
       %td{"data-title" => "Phone no."}
@@ -109,7 +109,7 @@
         - else
           '—'
     - unless lead.sold?
-      %tr
+      %tr{:id => "tr-bid-#{lead.id}"}
         %td{"colspan" => "100", :style => "padding-bottom: 27px; padding-left: 5px", :class => "form-inline"}
           %div{"class" => "form-group", :style => "width: 30px; float: left"}
             %div{"class" => "input-group"}

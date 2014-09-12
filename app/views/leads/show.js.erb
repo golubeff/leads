@@ -1,0 +1,65 @@
+<% 
+if @bid 
+    if @bid.status == 'pending' 
+        if @bid.bid_type == 'buynow'
+            @status = "Buying out..."
+        else
+            @status = "Placing bid..."
+        end
+    elsif @bid.status == 'done'
+        @status = "Bid placed."
+        %>
+        $('#bid-btn-<%= @bid.lead_id %>').removeClass("disabled");
+        $('#buynow-btn-<%= @bid.lead_id %>').removeClass("disabled");
+        $('#status-<%= @bid.lead_id %>').addClass('text-success');
+        <%    
+    elsif @bid.status == 'error'
+        @status = @bid.error
+        %>
+        $('#bid-btn-<%= @bid.lead_id %>').removeClass("disabled");
+        $('#buynow-btn-<%= @bid.lead_id %>').removeClass("disabled");
+        $('#status-<%= @bid.lead_id %>').addClass('text-danger');
+        <%
+    end
+
+    if @lead.sold?
+        %>
+            $('#tr-bid-<%= @bid.lead_id %>').hide();
+        <%
+    end
+
+end
+
+%>
+if (window['leadtimers-' + <%=@lead.id%>]) 
+    clearInterval(window['leadtimers-' + <%=@lead.id%>]);
+<%
+
+
+unless @lead && @bid && @bid.lead.user_id
+
+    %>
+    window['leadtimers-' + <%=@lead.id%>] = setInterval(function(){
+        $.ajax({
+            url: "<%= lead_path(@lead) %>",
+            cache: false,
+            async: true,
+            complete: function(xhr, status) {
+            }
+        });
+    }, 5000);
+    <%
+end
+
+%>
+
+$('#user-status-<%= @lead.id %>').html('<%=raw @lead.user_status(current_user) %>');
+<% if @lead.trading? || @lead.sold? %>
+$('#counter-<%= @lead.id %>').html('<%= @lead.print_time_left %>');
+$('#counter-<%= @lead.id %>').countdown(<%= @lead.time_left %>);
+<% end %>
+$('#bid-buynow-<%= @lead.id %>').html('$<%= @lead.buy_now_price %>');
+<% if @lead.bid %>
+    $('#table-bid-<%= @lead.id %>').html('$<%= @lead.bid %>');
+<% end %>
+$('#status-<%= @lead.id %>').html('<%= @status %>');

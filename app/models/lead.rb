@@ -29,18 +29,18 @@ class Lead < ActiveRecord::Base
 
     if winner && user && winner.id == user.id
       if sold?
-        return "You bought this lead."
+        return '<span class="text-success bg-success">Bought lead for $' + best_bid(user).bid.to_s + '.</span>'
       else
-        return "Your bid is highest."
+        return '<span class="text-success bg-success">Your bid $' + best_bid(user).bid.to_s + ' is highest.</span>'
       end
     elsif user && bids.done.map(&:user_id).include?(user.id)
       if sold?
-        return "Lead sold."
+        return '<span class="text-info bg-info">Sold.</span>'
       else
-        return "Someone placed higher bid."
+        return '<span class="text-danger bg-danger">Your bid $'+ best_bid(user).bid.to_s + ' is too low.</span>'
       end
     else
-      'You did not place any bids.'
+      '<span class="text-warning bg-warning">You did not bid.</span>'
     end
   end
 
@@ -63,8 +63,10 @@ class Lead < ActiveRecord::Base
     bids.done.order("bid desc").where(user_id: user.id).first
   end
 
-  def best_bid
-    bids.done.order("bid desc").first
+  def best_bid(user_id=nil)
+    collection = bids.done.order("bid desc")
+    collection = bids.where(user_id: user_id) if user_id
+    collection.first
   end
 
   def winner

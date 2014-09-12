@@ -86,6 +86,8 @@ label {
   width: 5em;
 }
 
+.lead-status > span > span { padding: 4px; display: inline-block; font-size: 90%; }
+
 @media 
 only screen and (max-width: 1100px),
 (min-device-width: 768px) and (max-device-width: 1024px)  {
