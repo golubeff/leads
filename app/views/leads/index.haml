@@ -1,0 +1,126 @@
+- if params[:my]
+  %h4 My Leads
+- else
+  %h4 Available Leads
+
+%table{class: "table table-striped table-hover"}
+  %thead
+    %tr
+      %th ID
+      %th Created at
+      %th Service
+      %th Location
+      %th Adults
+      %th Kids
+      %th Beds
+      %th Baths
+      %th Price range
+      %th Dates
+      %th Notes
+      - unless params[:my]
+        %th Status
+      %th Last Bid
+      %th Phone
+      %th Email
+      %th Name
+  %tbody
+  - @leads.each do |lead|
+    %tr
+      %td{"data-title" => "Lead ID"}= lead.id
+      %td{"data-title" => "Created at"}= lead.created_at
+      %td{"data-title" => "Service"}= Lead::SERVICES_HUMAN.invert[lead.service_kind.to_sym]
+      %td{"data-title" => "Location", "class" => "ext"}
+        - if lead.cities
+          - if lead.cities.length > 25
+            %a{"href" => "javascript:;"}= lead.cities.gsub(/^(.{25}).+$/m, '\1...')
+          - else
+            = lead.cities
+        - else
+          = '—'
+      %td{"data-title" => "Location", :style => "display: none" }= lead.cities
+      %td{"data-title" => "Adults"}= lead.adults || '—'
+      %td{"data-title" => "Kids"}= lead.kids || '—'
+      %td{"data-title" => "Bedrooms"}= lead.bedrooms || '—'
+      %td{"data-title" => "Bathrooms"}= lead.bathrooms || '—'
+      %td{"data-title" => "Price", :style => "white-space: nowrap"}= lead.price
+      %td{"data-title" => "Dates", :style => "white-space: nowrap"}=raw lead.dates
+      %td{"data-title" => "Notes", :class => "ext"}
+        - if lead.notes.to_s.present?
+          - if lead.notes.length > 25
+            %a{"href" => "javascript:;"}= lead.notes.gsub(/^(.{25}).+$/m, '\1...')
+          - else
+            = lead.notes
+        - else
+          = '—'
+      %td{"data-title" => "Notes", :style => "display: none" }= lead.notes
+      - unless params[:my]
+        %td{"data-title" => "Status"}
+          %span{"id" => "user-status-#{lead.id}"}
+            = lead.user_status(current_user) 
+            - if lead.user_bid(current_user) && !lead.sold?
+              :javascript
+                $.ajax({
+                  url: "/bids/#{lead.user_bid(current_user).id}",
+                  type: "GET",
+                  cache: false,
+                  async: false
+
+                });
+          = link_to "Refresh", '/'
+      %td{"data-title" => "Current Bid"}
+        %span{"id" => "table-bid-#{lead.id}"}
+          - if lead.bid 
+            - if !lead.sold?
+              = "$#{lead.bid}"
+          - else
+            — 
+
+        %span{:class=>"text-danger", :style => "font-weight: bold", :id => "counter-#{lead.id}"}
+          - if lead.trading_until
+            - if lead.user_id == current_user.id && lead.trading?
+              :javascript
+                $('#counter-#{lead.id}').countdown(#{lead.time_left});
+            - elsif lead.trading?
+              :javascript
+                $('#counter-#{lead.id}').countdown(#{lead.time_left});
+            - else
+              :javascript
+                $('#counter-#{lead.id}').addClass('text-success');
+                $('#counter-#{lead.id}').removeClass('text-danger');
+              = "$#{lead.bid}"                            
+
+
+      %td{"data-title" => "Phone no."}
+        - if lead.user_id == current_user.id
+          = lead.phone_number
+        - else 
+          = lead.hidden_phone_number
+      %td{"data-title" => "Email"}
+        - if lead.user_id == current_user.id
+          = lead.contact_email 
+        - else
+          = lead.hidden_email
+      %td{"data-title" => "Name"} 
+        - if lead.contact_name
+          - if lead.user_id == current_user.id
+            = lead.contact_name
+          - else
+            Available
+        - else
+          '—'
+    - unless lead.sold?
+      %tr
+        %td{"colspan" => "100", :style => "padding-bottom: 27px; padding-left: 5px", :class => "form-inline"}
+          %div{"class" => "form-group", :style => "width: 30px; float: left"}
+            %div{"class" => "input-group"}
+              %div{"class" => "input-group-addon"}$
+              %input{"value" => lead.next_bid, "size" => "3", :id => "bid-#{lead.id}", :class => "form-control", :style => "width: auto"}
+          %div{"class" => "form-group", :style => "padding-left: 100px"}
+            %button{ "type" => "button", "class" => "btn btn-primary bid", :id => "bid-btn-#{lead.id}", "data-leadid" => lead.id} Bid
+            %button{ "type" => "button", "class" => "btn btn-danger buynow", "data-leadid" => lead.id, :id => "buynow-btn-#{lead.id}"} 
+              Buy now for 
+              %span{ :id => "bid-buynow-#{lead.id}"}
+                ='$' + lead.buy_now_price.to_s
+          %p{:id => "status-#{lead.id}", :style => "clear: left; padding: 7px"} 
+
+= will_paginate(@leads)
