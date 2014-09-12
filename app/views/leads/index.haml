@@ -67,7 +67,7 @@
 
                 });
           = link_to "Refresh", '/'
-      %td{"data-title" => "Current Bid"}
+      %td{"data-title" => "Last Bid"}
         %span{"id" => "table-bid-#{lead.id}"}
           - if lead.bid 
             - if !lead.sold?
