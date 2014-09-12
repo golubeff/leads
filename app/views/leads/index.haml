@@ -77,7 +77,7 @@
 
         %span{:class=>"text-danger", :style => "font-weight: bold", :id => "counter-#{lead.id}"}
           - if lead.trading_until
-            - if lead.user_id == current_user.id && lead.trading?
+            - if user_signed_in? && lead.user_id == current_user.id && lead.trading?
               :javascript
                 $('#counter-#{lead.id}').countdown(#{lead.time_left});
             - elsif lead.trading?
@@ -91,18 +91,18 @@
 
 
       %td{"data-title" => "Phone no."}
-        - if lead.user_id == current_user.id
+        - if user_signed_in? && lead.user_id == current_user.id
           = lead.phone_number
         - else 
           = lead.hidden_phone_number
       %td{"data-title" => "Email"}
-        - if lead.user_id == current_user.id
+        - if user_signed_in? && lead.user_id == current_user.id
           = lead.contact_email 
         - else
           = lead.hidden_email
       %td{"data-title" => "Name"} 
         - if lead.contact_name
-          - if lead.user_id == current_user.id
+          - if user_signed_in? && lead.user_id == current_user.id
             = lead.contact_name
           - else
             Available

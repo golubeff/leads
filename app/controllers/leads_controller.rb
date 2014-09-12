@@ -1,10 +1,12 @@
 class LeadsController < ApplicationController
   def index
     @leads = Lead.all
-    if params[:my]
-      @leads = @leads.mine(current_user.id) 
-    else
-      @leads = @leads.not_mine(current_user.id) 
+    if user_signed_in?
+      if params[:my]
+        @leads = @leads.mine(current_user.id) 
+      else
+        @leads = @leads.not_mine(current_user.id) 
+      end
     end
 
     @leads = @leads.paginate(:per_page => 10, :page => params[:page])
