@@ -40,7 +40,11 @@ class Lead < ActiveRecord::Base
         return '<span class="text-danger bg-danger">Your bid $'+ best_bid(user).bid.to_s + ' is too low.</span>'
       end
     else
-      '<span class="text-warning bg-warning">You did not bid.</span>'
+      if sold?
+        return '<span class="text-info bg-info">Sold.</span>'
+      else
+        '<span class="text-warning bg-warning">You did not bid.</span>'
+      end
     end
   end
 
